@@ -1,0 +1,104 @@
+<div style="text-align: center">
+  <h1 style="margin: auto">Proyecto 2</h1>
+  <br>
+  <h2>Grupo 23</h2>
+  <br>
+  <h3>202000510</h3>
+  <h3>Javier Alexander Giron Donis</h3>
+  <br>
+  <br>
+</div>
+<dx-toolbar class="moduleToolbar" [items]="toolbarItems"></dx-toolbar>
+
+<div class="default">
+  <dx-tab-panel
+    [dataSource]="template"
+    [selectedIndex]="0"
+    [loop]="false"
+    [animationEnabled]="true"
+    [swipeEnabled]="false"
+    (onSelectionChanged)="selectTab($event)"
+  >
+    <div *dxTemplate="let element of 'title'">
+      <span>{{ element.name }}</span>
+    </div>
+    <div class="contenedorConsolas" *dxTemplate="let element of 'item'">
+      <ngx-codemirror
+        class="alinear"
+        [(ngModel)]="element.content"
+        [options]="{
+          theme: 'material',
+          mode: 'julia',
+          lineNumbers: true,
+          styleActiveLine: true,
+          lineWrapping: true,
+          columnNumbers: true,
+          foldGutter: true,
+          gutter: true,
+          gutters: [
+            'CodeMirror-linenumbers',
+            'CodeMirror-foldgutter',
+            'CodeMirror-lint-markers'
+          ],
+          autoCloseBrackets: true,
+          autocapitalize: true,
+          matchBrackets: true
+        }"
+      >
+      </ngx-codemirror>
+      <ngx-codemirror
+        class="alinear"
+        [(ngModel)]="salida"
+        [options]="{
+          readOnly: false,
+          theme: 'material',
+          mode: 'julia',
+          lineNumbers: true,
+          styleActiveLine: true,
+          lineWrapping: true,
+          columnNumbers: true,
+          foldGutter: true,
+          gutter: true,
+          gutters: [
+            'CodeMirror-linenumbers',
+            'CodeMirror-foldgutter',
+            'CodeMirror-lint-markers'
+          ],
+          autoCloseBrackets: true,
+          autocapitalize: true,
+          matchBrackets: true
+        }"
+      >
+      </ngx-codemirror>
+    </div>
+  </dx-tab-panel>
+
+  <br>
+  <br>
+  <div style="text-align: center">
+    <button (click)="graficar()" class="button">Graficar AST</button>
+    <button (click)="graficarTablaSimbolos()" class="buttonTabla">
+      Graficar Tabla Simbolos
+    </button>
+    <button (click)="graficarErrores()" class="buttonTabla">
+      Graficar Errores
+    </button>
+    <label class="buttonSubir" for="upload">Subir</label>
+    <input
+      class="buttonSubir"
+      type="file"
+      #tySubida
+      id="upload"
+      name="tySubida"
+      style="display: none"
+      (change)="upload($event)"
+    />
+  </div>
+
+  
+  <div style="text-align: center">
+    <div id="graphTable"></div>
+  </div>
+
+
+</div>

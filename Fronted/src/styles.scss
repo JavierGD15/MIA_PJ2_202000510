@@ -1,0 +1,28 @@
+@import "../node_modules/devextreme/dist/css/dx.material.blue.dark.compact.css";
+@import '~codemirror/lib/codemirror';
+@import '~codemirror/theme/ayu-mirage';
+@import '~codemirror/theme/material';
+
+.dx-textarea .dx-texteditor-input{
+  background: #363640 !important;
+}
+
+.consola{
+  background: #242429;
+  min-width: 100%;
+  height: 250px;
+  color:#fbfbff;
+  padding: 10px;
+}
+
+.tituloConsola{
+  background: #414147;
+  height: 50px;
+  color:#fbfbff;
+  align-items: center;
+  margin: 0%;
+}
+
+body {
+    background-color: #166ea1 !important;
+}
