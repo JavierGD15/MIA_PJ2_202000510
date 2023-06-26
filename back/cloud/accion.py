@@ -12,17 +12,18 @@ class Drive:
         self.drive = self.authenticate()
 
     def authenticate(self):
-        gauth = GoogleAuth()
-        gauth.LoadCredentialsFile("mycreds.txt")
-        if gauth.credentials is None:
-            gauth.LocalWebserverAuth()
-        elif gauth.access_token_expired:
-            gauth.Refresh()
-        else:
-            gauth.Authorize()
+        # gauth = GoogleAuth()
+        # gauth.LoadCredentialsFile("mycreds.txt")
+        # if gauth.credentials is None:
+        #     gauth.LocalWebserverAuth()
+        # elif gauth.access_token_expired:
+        #     gauth.Refresh()
+        # else:
+        #     gauth.Authorize()
 
-        gauth.SaveCredentialsFile("mycreds.txt")
-        return GoogleDrive(gauth)
+        # gauth.SaveCredentialsFile("mycreds.txt")
+        # return GoogleDrive(gauth)
+        pass
 
     def crear_subFolder(self, nombre, id_parents):
         archivo = self.drive.CreateFile({'title': '' + nombre + '', 'parents': [{'id': id_parents}],

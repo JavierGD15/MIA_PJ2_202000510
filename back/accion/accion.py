@@ -10,7 +10,7 @@ from shutil import rmtree
 from distutils.dir_util import copy_tree
 import pyaes
 import sys
-sys.path.append(r'Archivos_P1\Archivos_P1-develop\Archivos_P1\org')
+sys.path.append(r'Archivos 2/back/accion')
 from cloud.accion import Drive
 
 # variables globales para guardar Configuracion de Archivos

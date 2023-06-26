@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { login } from 'src/app/models/login';
 import { AnalisisService } from 'src/app/services/analisis.service';
 @Component({
@@ -10,7 +11,7 @@ import { AnalisisService } from 'src/app/services/analisis.service';
 export class LoginComponent implements OnInit {
 
 
-  constructor(private formBuilder:FormBuilder,private log: AnalisisService) { }
+  constructor(private formBuilder:FormBuilder,private log: AnalisisService, private router: Router) { }
 
   formularioLogin: FormGroup = this.formBuilder.group({
     usuario: ['', [Validators.required]],
@@ -61,6 +62,13 @@ export class LoginComponent implements OnInit {
         console.log(res);
         this.loger = res.salida;
         console.log(this.loger);
+        var resultado = this.loger;
+        if (resultado == "True") {
+          this.router.navigate(['/principal']);
+        }
+        else {
+          console.log("no entros");
+        }
       },
       (err) => {
         console.log(err);
