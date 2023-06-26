@@ -68,9 +68,6 @@ export class PrincipalComponent implements OnInit {
       (res) => {
         console.log(res);
         this.salida = res.salida;
-        this.grafo = res.dot;
-        this.tablaSimbolos = res.tabladot;
-        this.errores = res.doterrores;
       },
       (err) => {
         console.log(err);
@@ -79,11 +76,11 @@ export class PrincipalComponent implements OnInit {
   }
 
   optimizar() {
-    this.text.entrada = this.salida;
-    this.analizador.optimizar(this.text).subscribe((res) => {
-      this.optimizado = res.salida;
-      this.data = res.optimizaciones;
-    });
+    // this.text.entrada = this.salida;
+    // this.analizador.optimizar(this.text).subscribe((res) => {
+    //   this.optimizado = res.salida;
+    //   this.data = res.optimizaciones;
+    // });
   }
 
   cargarArchivo() {}
@@ -115,19 +112,6 @@ export class PrincipalComponent implements OnInit {
     a.download = fileName;
     a.click();
   }
-
-  graficar() {
-    graphviz('#graphTable').renderDot(this.grafo);
-  }
-
-  graficarTablaSimbolos() {
-    graphviz('#graphTable').renderDot(this.tablaSimbolos);
-  }
-
-  graficarErrores() {
-    graphviz('#graphTable').renderDot(this.errores);
-  }
-
   async removeTab() {
     if (this.template.length == 0) {
       await this.userInteractionService.notify('No hay tabs para remover');

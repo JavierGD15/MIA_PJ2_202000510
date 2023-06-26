@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { login } from 'src/app/models/login';
+import { AnalisisService } from 'src/app/services/analisis.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -8,15 +10,21 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class LoginComponent implements OnInit {
 
 
-  constructor(private formBuilder:FormBuilder) { }
+  constructor(private formBuilder:FormBuilder,private log: AnalisisService) { }
 
   formularioLogin: FormGroup = this.formBuilder.group({
     usuario: ['', [Validators.required]],
     contra: ['', [Validators.required]]
   })
 
+  persona: login = {
+    usuario: '',
+    password: ''
+    };
   usuario: string = '';
   contra: string = '';
+  
+  loger: string = '';
 
   ngOnInit() {
   }
@@ -24,6 +32,7 @@ export class LoginComponent implements OnInit {
   onSubmit() {
     if (this.formularioLogin.valid) {
       console.log(this.formularioLogin.value);
+      this.enviar();
     }
   }
 
@@ -41,5 +50,21 @@ export class LoginComponent implements OnInit {
 
   get noContra() {
     return this.formularioLogin.get('contra');
+  }
+
+
+  enviar() {
+    this.persona.usuario = this.getUsuarioValido();
+    this.persona.password = this.getContraValida();
+    this.log.login(this.persona).subscribe(
+      (res) => {
+        console.log(res);
+        this.loger = res.salida;
+        console.log(this.loger);
+      },
+      (err) => {
+        console.log(err);
+      }
+    );
   }
 }
