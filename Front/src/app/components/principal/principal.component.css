@@ -1,0 +1,65 @@
+h1,h2,h3 {
+    margin: 0 0;
+    color: #fcfcfc;
+}
+
+.button {
+    background-color: #5f4092; 
+    border: solid 2px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    padding: 20px;
+    border-radius: 15% 0 0 15%;
+
+}
+
+.buttonTabla {
+    background-color: #0d0120; 
+    border: solid 2px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    padding: 20px;
+}
+
+.buttonErrores {
+    background-color: #032130; 
+    border: solid 2px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    padding: 20px;
+}
+
+.buttonSubir {
+    background-color: #121149; 
+    border: solid 2px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    padding: 20px;
+    border-radius: 0 15% 15% 0;
+}
+
+.alinear {
+    width: 50%;
+    font-size: 14px;
+    padding: 0.5%;
+}
+
+.contenedorConsolas {
+    display: flex;
+}

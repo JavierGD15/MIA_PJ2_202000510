@@ -1,0 +1,21 @@
+<mat-card class="login-box" id="lienzo2">
+    <mat-card-header>
+        <mat-card-title>Inicia Sesión</mat-card-title>
+    </mat-card-header>
+    
+        <form [formGroup]="formularioLogin" id="formulario">
+            <mat-form-field style="margin: 10px">
+                <mat-label>Usuario</mat-label>
+                <input matInput formControlName="usuario" placeholder="Ingresa tu Usuario">
+                <mat-error *ngIf="noUsuario?.hasError('required')"></mat-error>
+            </mat-form-field> 
+            <mat-form-field style="margin: 10px">
+                <mat-label>Contraseña</mat-label>
+                <input matInput formControlName="contra" placeholder="Ingresa tu Contraseña" type="password">
+                <mat-error *ngIf="noContra?.hasError('required')"></mat-error>
+            </mat-form-field> 
+              <button mat-button type="submit" (click)="onSubmit()">Ingresar</button>
+        </form>
+   
+</mat-card>
+
