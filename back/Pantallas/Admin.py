@@ -1,7 +1,7 @@
 import tkinter as tk
 import sys
 sys.path.append(r'Archivos 2/back/accion')
-from accion.accion import create, delete, copy, transfer, rename, modify, devolver_ecrypt_read, backup
+from accion.accion import create, delete, copy, transfer, rename, modify, devolver_ecrypt_read, backup, recovery, delete_all, opens
 from tkinter import ttk
 from tkinter import scrolledtext
 from Pantallas.Analizador import parse_command
@@ -15,58 +15,79 @@ class Application:
             cmd, params = parse_command(line)
             if params is not None:
                 if cmd == 'create':
-                    if create(params[0], params[2], params[1].replace('"', '')):
-                        print("Creación exitosa")
+                    if create(params['name'], params['body'], params['path'], params['type']):
+                        return "Creación exitosa en "+params['path']
                     else:
-                        print("Error en la creación")
+                        return "Error en la creación en "+params['path']
                 elif cmd == 'delete':
-                    
-                    print(params)
-                    if params[1] == None:
-                        if delete(params[0]):
-                            print("Eliminación exitosa")
+                    if len(params) == 2:
+                        if delete(params['path'], params['type']):
+                            return "Eliminacion exitosa en "+params['path']
                         else:
-                            print("Error en la eliminación")
+                             return "Error en Eliminacion en "+params['path']
                     else:
-                        if delete(params[0], params[2].replace('"', '')):
-                            print("Eliminación exitosa")
+                        if delete(params['path'], params['type'], params['name']):
+                            return "Eliminacion exitosa en "+params['path']
                         else:
-                            print("Error en la eliminación")
+                             return "Error en Eliminacion en "+params['path']
                 elif cmd == 'copy':
-                    if copy(params[0].rsplit('/', 1)[0]+'/'.replace('"', ''), params[1].replace('"', ''), params[0].split("/")[-1]):
-                        print("Copia exitosa")
+                    if copy(params['from'], params['to'], params['type_to'], params['type_from']):
+                        return "Copia exitosa en "+params['path']
                     else:
-                        print("Error en la copia")
+                        return "Error en copia en "+params['path']
                 elif cmd == 'transfer':
-                    if params[2] == 'local':
-                        tipo = '1'
+                    if transfer(params['from'], params['to'], params['type_to'], params['type_from']):
+                        return "Transferencia exitosa en "+params['path']
                     else:
-                        tipo = '2'
-                    if transfer(params[0].rsplit('/', 1)[0]+'/'.replace('"', ''), params[1].replace('"', ''),tipo,params[0].split("/")[-1]):
-                        print("Transferencia exitosa")
-                    else:
-                        print("Error en la transferencia")
+                        return "Error en la transferencia en "+params['path']
                 elif cmd == 'rename':
-                    if rename(params[0].rsplit('/', 1)[0]+'/'.replace('"', ''), params[0].split("/")[-1], params[1]):
-                        print("Renombrado exitoso")
+                    if rename(params['path'].rsplit('/', 1)[0]+'/'.replace('"', ''), params['path'].split("/")[-1], params['name'], params['type']):
+                        return("Renombrado exitoso")
                     else:
-                        print("Error en el renombrado")
+                        return("Error en el renombrado")
                 elif cmd == 'modify':
-                    if modify((params[0].rsplit('/', 1)[0]+'/').replace('"', ''), params[0].split("/")[-1], params[1]):
-                        print("Modificación exitosa")
+                    if modify((params['path'].rsplit('/', 1)[0]+'/').replace('"', ''), params['path'].split("/")[-1], params['body'], params['type']):
+                        return("Modificación exitosa")
                     else:
-                        print("Error en la modificación")
+                        return("Error en la modificación")
                 elif cmd == 'backup':
-                    if backup():
-                        print("backup exitosa")
+                    if len(params) == 3:
+                        if backup(params['type_to'], params['type_from'], params['name']):
+                            return "Backup exitoso en "+params['type_from']
+                        else:
+                             return "Error en Backup en "+params['type_from']
                     else:
-                        print("Error en el backup")
+                        if backup(params['type_to'], params['type_from'], params['name'], params['ip'], params['port']):
+                            return "Backup exitoso en "+params['type_from']
+                        else:
+                             return "Error en Backup en "+params['type_from']
                 elif cmd == 'recovery':
-                    pass
+                    if len(params) == 3:
+                        if recovery(params['type_to'], params['type_from'], params['name']):
+                            return "recovery exitoso en "+params['type_from']
+                        else:
+                             return "Error en recovery en "+params['type_from']
+                    else:
+                        if recovery(params['type_to'], params['type_from'], params['name'], params['ip'], params['port']):
+                            return "recovery exitoso en "+params['type_from']
+                        else:
+                             return "Error en recovery en "+params['type_from']
                 elif cmd == 'delete_all':
-                    pass
+                    if delete_all(params['type']):
+                        return "delete_all exitoso"
+                    else:
+                        return "Error delete_all"
                 elif cmd == 'open':
-                    pass
+                    if len(params) == 2:
+                        if opens(params['type'], params['name']):
+                            return "Apertura exitosa"
+                        else:
+                             return "Error en apertura"
+                    else:
+                        if opens(params['type'], params['name'], params['ip'], params['port']):
+                            return "Apertura exitosa"
+                        else:
+                            return "Error en apertura"
                 else:
                     print("Comando no reconocido")
             

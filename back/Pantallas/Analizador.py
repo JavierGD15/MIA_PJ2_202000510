@@ -2,24 +2,115 @@ import re
 
 def parse_command(command):
     patterns = {
-        'create': r'create -name->(.*?) -body->\"(.*?)\" -path->(.*?) -type->(.*?)',
-        'delete': r'delete -path->(.*?)( -name->\"(.*?)\")? -type->(.*?)',
-        'copy': r'copy -from->(.*?) -to->(.*) -type_to->(.*?) -type_from->(.*?)',
-        'transfer': r'transfer -from->(.*?) -to->(.*?) -type_to->(.*?) -type_from->(.*?)',
-        'rename': r'rename -path->(.*?) -name->(.*) -type->(.*?)',
-        'modify': r'modify -path->(.*?) -body->\"(.*?)\" -type->(.*?)',
-        'backup': r'backup -type_to->(.*?) -type_from->(.*?)( -ip->(.*?))?( -port->(.*?))? -name->\"(.*?)\"',
-        'recovery': r'recovery -type_to->(.*?) -type_from->(.*?)( -ip->(.*?))?( -port->(.*?))? -name->\"(.*?)\"',
-        'delete_all': r'delete_all -type->(.*?)',
-        'open': r'open -type->(.*?)( -ip->(.*?))?( -port->(.*?))? -name->\"(.*?)\"',
-}
-    for cmd, pattern in patterns.items():
-        
-        match = re.match(pattern, command, re.IGNORECASE)
-        if match:
-            return cmd, match.groups()
+        'create': {
+            'required': [
+                r'-name->(.*?)(?=\s*-|$)', 
+                r'-path->(.*?)(?=\s*-|$)', 
+                r'-body->\"(.*?)\"(?=\s*-|$)', 
+                r'-type->(.*?)(?=\s*-|$)'
+            ],
+            'optional': []
+        },
+        'delete': {
+            'required': [
+                r'-path->(.*?)(?=\s*-|$)', 
+                r'-type->(.*?)(?=\s*-|$)'
+            ],
+            'optional': [
+                r'-name->(.*?)(?=\s*-|$)'
+            ]
+        },
+        'copy': {
+            'required': [
+                r'-from->(.*?)(?=\s*-|$)', 
+                r'-to->(.*?)(?=\s*-|$)', 
+                r'-type_to->(.*?)(?=\s*-|$)', 
+                r'-type_from->(.*?)(?=\s*-|$)'
+            ],
+            'optional': []
+        },
+        'transfer': {
+            'required': [
+                r'-from->(.*?)(?=\s*-|$)', 
+                r'-to->(.*?)(?=\s*-|$)', 
+                r'-type_to->(.*?)(?=\s*-|$)', 
+                r'-type_from->(.*?)(?=\s*-|$)'
+            ],
+            'optional': []
+        },
+        'rename': {
+            'required': [
+                r'-path->(.*?)(?=\s*-|$)', 
+                r'-name->(.*?)(?=\s*-|$)', 
+                r'-type->(.*?)(?=\s*-|$)'
+            ],
+            'optional': []
+        },
+        'modify': {
+            'required': [
+                r'-path->(.*?)(?=\s*-|$)', 
+                r'-body->\"(.*?)\"(?=\s*-|$)', 
+                r'-type->(.*?)(?=\s*-|$)'
+            ],
+            'optional': []
+        },
+        'backup': {
+            'required': [
+                r'-type_to->(.*?)(?=\s*-|$)', 
+                r'-type_from->(.*?)(?=\s*-|$)', 
+                r'-name->\"(.*?)\"(?=\s*-|$)'
+            ],
+            'optional': [
+                r'-ip->(.*?)(?=\s*-|$)', 
+                r'-port->(.*?)(?=\s*-|$)'
+            ]
+        },
+        'recovery': {
+            'required': [
+                r'-type_to->(.*?)(?=\s*-|$)', 
+                r'-type_from->(.*?)(?=\s*-|$)', 
+                r'-name->\"(.*?)\"(?=\s*-|$)'
+            ],
+            'optional': [
+                r'-ip->(.*?)(?=\s*-|$)', 
+                r'-port->(.*?)(?=\s*-|$)'
+            ]
+        },
+        'delete_all': {
+            'required': [
+                r'-type->(.*?)(?=\s*-|$)'
+            ],
+            'optional': []
+        },
+        'open': {
+            'required': [
+                r'-type->(.*?)(?=\s*-|$)', 
+                r'-name->\"(.*?)\"(?=\s*-|$)'
+            ],
+            'optional': [
+                r'-ip->(.*?)(?=\s*-|$)', 
+                r'-port->(.*?)(?=\s*-|$)'
+            ]
+        },
+    }
 
-    return None, None
+    for cmd, pattern_dict in patterns.items():
+        matches = {}
+        for pattern in pattern_dict['required']:
+            match = re.findall(pattern, command, re.IGNORECASE)
+            if match:
+                arg = pattern.split('->')[0].lstrip('-')
+                matches[arg] = match[0]
+                
+        if len(matches) != len(pattern_dict['required']):
+            continue  # If not all required arguments were found, move on to the next command.
 
-#ejemplo de exec
-#exec -path->"C:\Users\josea\Documents\GitHub\Archivos_P1\Archivos_P1-develop\Archivos_P1\org\Archivos\prueba.txt"
+        for pattern in pattern_dict['optional']:
+            match = re.findall(pattern, command, re.IGNORECASE)
+            if match:
+                arg = pattern.split('->')[0].lstrip('-')
+                matches[arg] = match[0]
+
+        return cmd, matches  # If all required arguments (and any optional arguments) were found, return the command and matches.
+
+    return None, None  # If no command matched, return None, None.

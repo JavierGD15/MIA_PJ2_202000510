@@ -12,8 +12,8 @@ CORS(app)
 def consola():
     comando= request.get_json()
     usos = Application()
-    usos.ejecutar(comando['entrada'])
-    return jsonify({'salida': str(comando['entrada'])})
+    datos_resultado = usos.ejecutar(comando['entrada'])
+    return jsonify({'salida': datos_resultado})
 
 @app.route('/login', methods=['POST'])
 def login():

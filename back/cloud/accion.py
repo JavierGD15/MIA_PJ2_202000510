@@ -1,5 +1,5 @@
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+import boto3
+from botocore.exceptions import NoCredentialsError, EndpointConnectionError
 import os
 import mimetypes
 
@@ -7,23 +7,19 @@ directorio_credenciales = 'credentials_modules.json'
 id_folder_base = '1UtnT-_UsMEnCO9pdltTUoxEe9wNptPii'
 
 
-class Drive:
+class AWS:
     def __init__(self):
-        self.drive = self.authenticate()
+        # self.s3 = self.authenticate(aws_access_key_id, aws_secret_access_key, aws_session_token)
+        print("AWS")
 
-    def authenticate(self):
-        # gauth = GoogleAuth()
-        # gauth.LoadCredentialsFile("mycreds.txt")
-        # if gauth.credentials is None:
-        #     gauth.LocalWebserverAuth()
-        # elif gauth.access_token_expired:
-        #     gauth.Refresh()
-        # else:
-        #     gauth.Authorize()
-
-        # gauth.SaveCredentialsFile("mycreds.txt")
-        # return GoogleDrive(gauth)
-        pass
+    def authenticate(self, aws_access_key_id, aws_secret_access_key, aws_session_token):
+        s3 = boto3.client(
+            's3', 
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            aws_session_token=aws_session_token  # Puede ser None
+        )
+        return s3
 
     def crear_subFolder(self, nombre, id_parents):
         archivo = self.drive.CreateFile({'title': '' + nombre + '', 'parents': [{'id': id_parents}],

@@ -11,7 +11,7 @@ from distutils.dir_util import copy_tree
 import pyaes
 import sys
 sys.path.append(r'Archivos 2/back/accion')
-from cloud.accion import Drive
+from cloud.accion import AWS
 
 # variables globales para guardar Configuracion de Archivos
 tipoAlmacena = 0  # 1 = local , 2 = nube
@@ -22,7 +22,7 @@ llave = ''
 
 bitacora = []  # lista que lleva el registro de bitacora
 _initPath = '/Archivos'  # carpeta donde se almacenaran localmente los archivos
-drive = Drive()
+aws = AWS()
 
 # metodos estaticos (Comandos)-----------------------------------------------------------------------------------------
 def variables_default():
@@ -177,7 +177,7 @@ def configure(_tipo, encrypt, _encrypt_read, _llave=''):
     return True
 
 
-def create(_name, _body, _path):
+def create(_name, _body, _path, _tipo):
     global _initPath
 
     if _path == '':
@@ -189,7 +189,7 @@ def create(_name, _body, _path):
     # para crear crea carpeta
 
     try:
-        if tipoAlmacena == 1:
+        if _tipo == 'server':
 
             # crea carpeta localmente
             home = Path.home()
@@ -202,18 +202,18 @@ def create(_name, _body, _path):
                 inserta_bitacora_general('Output', 'Create', 'Error : Archivo ya existe')
                 return False
 
-            file = open(home + _name, "w")
-            file.write(_body)
-            file.close()
+            files = open(home + _name, "w")
+            files.write(_body)
+            files.close()
             inserta_bitacora_general('Output', 'Create', 'Archivo Creado exitosamente')
             return True
 
-        elif tipoAlmacena == 2:
-            msj = drive.create(_path, _name, _body)
+        elif _tipo == 'bucket':
+            msj = aws.create(_path, _name, _body)
             inserta_bitacora_general('Output', 'Create', msj)
             return True
         else:
-            inserta_bitacora_general('Output', 'Create', 'Error : Comando Configure no ejecutado')
+            inserta_bitacora_general('Output', 'Create', 'Error : Comando Invalido')
             return False
 
     except Exception as e:
@@ -223,14 +223,14 @@ def create(_name, _body, _path):
         return False
 
 
-def delete(_path, _name=''):
+def delete(_path, _tipo, _name=''):
     global _initPath
     if _path == '':
         _path += '/'
 
     inserta_bitacora_general('Input', 'Delete', 'path: ' + str(_path) + ' | name: ' + str(_name))
     try:
-        if tipoAlmacena == 1:  # operacion local
+        if _tipo == 'server':  # operacion local
 
             # crea carpeta localmente
             home = Path.home()
@@ -256,10 +256,10 @@ def delete(_path, _name=''):
                 return False
 
 
-        elif tipoAlmacena == 2:
+        elif _tipo == 'bucket':
             # Elimina carpeta en la nube
-            #drive = Drive()
-            msj = drive.delete(_path, _name)
+            #aws = aws()
+            msj = aws.delete(_path, _name)
             inserta_bitacora_general('Output', 'Create', msj)
             return True
         else:
@@ -270,14 +270,14 @@ def delete(_path, _name=''):
         return False
 
 
-def copy(_from, _to, _name=''):
+def copy(_from, _to, type_to,type_from):
     global _initPath
 
     try:
 
         inserta_bitacora_general('Input', 'Copy', 'from: ' + str(_from) + str(_name) + ' | to: ' + str(_to))
         
-        if tipoAlmacena == 1:  # operacion local
+        if _tipo == 'server':  # operacion local
             home = Path.home()
             _from = str(home) + _initPath + _from
             _from = _from.replace("\\", "/")
@@ -307,9 +307,9 @@ def copy(_from, _to, _name=''):
                 inserta_bitacora_general('Output', 'Copy', 'Error  ruta no existe')
                 return False
 
-        elif tipoAlmacena == 2:
+        elif _tipo == 'bucket':
             # mueve a la carpeta en la nube
-            msj = drive.copy(_from+ _name, _to )
+            msj = aws.copy(_from+ _name, _to )
             inserta_bitacora_general('Output', 'Copy', msj)
             return True
         else:
@@ -320,7 +320,7 @@ def copy(_from, _to, _name=''):
         return False
 
 
-def transfer(_from, _to, _mode, _name=''):  # mode recibe 1 = local , 2 c= cloud
+def transfer(_from, _to, type_to,type_from):  # mode recibe 1 = local , 2 c= cloud
     global _initPath
 
     try:
@@ -362,7 +362,7 @@ def transfer(_from, _to, _mode, _name=''):  # mode recibe 1 = local , 2 c= cloud
 
         elif _mode == '2':
             # mueve a la carpeta en la nube
-            msj = drive.transfer(_from+ _name, _to )
+            msj = aws.transfer(_from+ _name, _to )
             inserta_bitacora_general('Output', 'Transfer', msj)
             return True
         else:
@@ -373,7 +373,7 @@ def transfer(_from, _to, _mode, _name=''):  # mode recibe 1 = local , 2 c= cloud
         return False
 
 
-def rename(_path, _name, _new_name):
+def rename(_path, _name, _new_name,_tipo):
     global _initPath
 
     try:
@@ -386,7 +386,7 @@ def rename(_path, _name, _new_name):
         _from = str(home) + _initPath + _path
         _from = _from.replace("\\", "/")
 
-        if tipoAlmacena == 1:  # operacion local
+        if _tipo == 'server':  # operacion local
             if Path(_from).exists():  # si la carpeta existe , procede a verificar que el archivo exista
                 if _name != '':  # verifica que el archivo exista
                     if Path(_from + _name).exists():  # si existe el archivo procede a cambiar de nombre el archivo
@@ -434,9 +434,9 @@ def rename(_path, _name, _new_name):
                 inserta_bitacora_general('Output', 'Rename', 'Error  ruta no existe')
                 return False
 
-        elif tipoAlmacena == 2:
+        elif _tipo == 'bucket':
             # realiza rename en la nube
-            msj = drive.rename(_path + _name, _new_name)
+            msj = aws.rename(_path + _name, _new_name)
             inserta_bitacora_general('Output', 'Rename', msj)
             return True
         else:
@@ -447,7 +447,7 @@ def rename(_path, _name, _new_name):
         return False
 
 
-def modify(_path, _name, _body):
+def modify(_path, _name, _body, _tipo):
     global _initPath
 
     try:
@@ -460,7 +460,7 @@ def modify(_path, _name, _body):
         _from = str(home) + _initPath + _path
         _from = _from.replace("\\", "/")
 
-        if tipoAlmacena == 1:  # operacion local
+        if _tipo == 'server':  # operacion local
             if Path(_from).exists():  # si la carpeta existe , procede a verificar que el archivo exista
                 if _name != '':  # verifica que el archivo exista
 
@@ -489,9 +489,9 @@ def modify(_path, _name, _body):
                 inserta_bitacora_general('Output', 'Modify', 'Error  ruta no existe')
                 return False
 
-        elif tipoAlmacena == 2:
+        elif _tipo == 'bucket':
             # realiza modify en la nube   , pendiente
-            msj = drive.modify(_path + _name, _body)
+            msj = aws.modify(_path + _name, _body)
             inserta_bitacora_general('Output', 'Modify', msj)
             return True
         else:
@@ -501,72 +501,15 @@ def modify(_path, _name, _body):
         inserta_bitacora_general('Output', 'Modify', 'Error en metodo Modify , error al insertar nueva linea de texto')
         return False
 
-
-def add(_path, _name, _body):
-    global _initPath
-
-    try:
-        if _path == '':
-            _path += '/'
-
-        inserta_bitacora_general('Input', 'Add',
-                                 'path: ' + str(_path) + str(_name) + ' | body: ' + str(_body))
-        home = Path.home()
-        _from = str(home) + _initPath + _path
-        _from = _from.replace("\\", "/")
-
-        if tipoAlmacena == 1:  # operacion local
-            if Path(_from).exists():  # si la carpeta existe , procede a verificar que el archivo exista
-                if _name != '':  # verifica que el archivo exista
-
-                    if Path(_from + _name).exists():  # si existe el archivo procede a insertar linea
-                        try:
-
-                            file = open(_from + _name, "a")
-                            file.write('\n' + _body)
-                            file.close()
-
-                            inserta_bitacora_general('Output', 'Add',
-                                                     'Se agrega contenido al Archivo exitosamente')
-                            return True
-                        except:
-                            inserta_bitacora_general('Output', 'Add',
-                                                     'Error al agregar contenido en el archivo')
-                            return False
-                    else:
-                        inserta_bitacora_general('Output', 'Add', 'Error Archivo no existe')
-                        return False
-                else:  # procede a retornar error porque no ingresaron nombre de archivo
-
-                    inserta_bitacora_general('Output', 'Add', 'Error archivo no existe')
-                    return False
-            else:
-                inserta_bitacora_general('Output', 'Add', 'Error  ruta no existe')
-                return False
-
-        elif tipoAlmacena == 2:
-            # realiza modify en la nube   , pendiente
-            
-            msj = drive.add(_path, _name,_body)
-            inserta_bitacora_general('Output', 'Add', msj)
-            return True
-        else:
-            inserta_bitacora_general('Output', 'Add', 'Error : Comando Configure no ejecutado')
-            return False
-    except Exception as e:
-        print(f"Error al agregar contenido al archivosssss: {e}")
-        inserta_bitacora_general('Output', 'Add', 'Error en metodo Add , error al agregar nuevo texto')
-        return False
-
-def backup():
+def backup(type_to,type_from,name ,_ip='', _port=''):
     try:
         home = Path.home()
-        if tipoAlmacena == 1:
-            msj = drive.backup_local(str(home) + _initPath)
+        if _tipo == 'server':
+            msj = aws.backup_local(str(home) + _initPath)
             inserta_bitacora_general('Output', 'Backup', msj)
             return True
-        elif tipoAlmacena == 2:
-            msj = drive.backup_nube(str(home) + _initPath)
+        elif _tipo == 'bucket':
+            msj = aws.backup_nube(str(home) + _initPath)
             inserta_bitacora_general('Output', 'Backup', msj)
             return True
         else:
@@ -577,6 +520,18 @@ def backup():
         print(f"Error al agregar contenido al archivosssss: {e}")
         inserta_bitacora_general('Output', 'Add', 'Error en metodo Add , error al agregar nuevo texto')
         return False
+
+
+def recovery(type_to,type_from, _name,_ip='', _port=''):
+    pass
+
+def delete_all(_tipo):
+    pass
+
+def opens(type_to,type_from, _name,_ip='', _port=''):
+    pass
+
+
 
 def salir():
     print("\n FIN DE LA APLICACIÓN  ")
@@ -591,132 +546,4 @@ def cambiar_ecrypt_read():
     
 def devolver_llave():
     return llave
-
-# FIN metodos estaticos (Comandos)-------------------------------------------------------------------------------------
-
-
-# metodos para similar las entradas en consola
-
-def mostrar_menu():
-    print("""
-    ########################      Menu Principal      ########################
-
-                1)  Comando  Configure   
-                2)  Comando Create
-                3)  Comando Delete
-                4)  Comando Copy
-                5)  Comando Transfer
-                6)  Comando Rename
-                7)  Comando Modify
-                8)  Comando Add
-                9)  Comando Backup
-                10)  Salir
-    """)
-
-
-class Menu:
-    def __init__(self):
-        self.acciones = {
-            "1": self.configure,
-            "2": self.create,
-            "3": self.delete,
-            "4": self.copy,
-            "5": self.transfer,
-            "6": self.rename,
-            "7": self.modify,
-            "8": self.add,
-            # "9": self.backup,
-            "10": self.salir
-        }
-
-        while True:
-            mostrar_menu()
-            eleccion = input("\n   Seleccione una opción: ")
-            accion = self.acciones.get(eleccion)
-            if accion:
-                accion()
-            else:
-                os.system("cls")
-                print("\n{0} no es una elección válida".format(eleccion))
-
-    def configure(self):
-        _tipo = input("\n   Ingrese tipo: ")
-        encrypt = input("\n   Ingrese encrypt: ")
-        _encrypt_read = input("\n   Ingrese _encrypt_read: ")
-        _llave = input("\n   Ingrese _llave: ")
-        configure(_tipo, encrypt, _encrypt_read, _llave)
-        Menu()
-
-    def create(self):
-        _name = input("\n   Ingrese name: ")
-        _body = input("\n   Ingrese body: ")
-        _path = input("\n   Ingrese path: ")
-        create(_name, _body, _path)
-        Menu()
-
-    def delete(self):
-
-        _path = input("\n   Ingrese path: ")
-        _name = input("\n   Ingrese name: ")
-        delete(_path, _name)
-        Menu()
-
-    def copy(self):
-
-        _from = input("\n   Ingrese from: ")
-        _name = input("\n   Ingrese name:")
-        _to = input("\n   Ingrese to: ")
-        copy(_from, _to, _name)
-        Menu()
-
-    def transfer(self):
-
-        _from = input("\n   Ingrese from: ")
-        _name = input("\n   Ingrese name:")
-        _to = input("\n   Ingrese to: ")
-        _modo = input("\n   Ingrese modo:")
-        transfer(_from, _to, _modo, _name)
-        Menu()
-
-    def rename(self):
-
-        _from = input("\n   Ingrese path: ")
-        _name = input("\n   Ingrese name:")
-        _new_name = input("\n   Ingrese new name: ")
-        rename(_from, _name, _new_name)
-        Menu()
-
-    def modify(self):
-
-        _path = input("\n   Ingrese path: ")
-        _name = input("\n   Ingrese name:")
-        _body = input("\n   Ingrese body: ")
-        modify(_path, _name, _body)
-        Menu()
-
-    def add(self):
-
-        _path = input("\n   Ingrese path: ")
-        _name = input("\n   Ingrese name:")
-        _body = input("\n   Ingrese body: ")
-        add(_path, _name, _body)
-        Menu()
-
-    """def backup(self):
-
-        _path = input("\n   Ingrese path: ")
-        _name = input("\n   Ingrese name:")
-        _body = input("\n   Ingrese body: ")
-        backup(_path, _name, _body)
-        Menu()
-    """
-
-    def salir(self):
-        print("Inicio bitacora --------------------------------")
-        for i in bitacora:
-            print(i)
-        print("Fin  bitacora --------------------------------")
-        print("\n FIN DE LA APLICACIÓN  ")
-
-        sys.exit(0)
 
