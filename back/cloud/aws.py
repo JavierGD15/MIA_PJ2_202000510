@@ -150,67 +150,82 @@ class AWS:
     def copy(self,valor1,valor2,valor3,valor4):
     
         patron = r'^\w+\/\w+\.\w+$'
-        source_directory = valor1 + '/'
-
-        destination_directory = valor2 + '/'
-        #Valor3 Copy -from->/carpeta1/prueba1.txt -to->/”carpeta 2”/ -type_to->sever -type_from->bucket
-        #Valor3 type_to
-        #Valor4 type_from
-        #To Server From Bucket
+        
+        
         if re.match(patron, valor1):
 
-            print("Arhcivo")
-            '''
-            source_directory_2 = valor1
-            try:
-                #resultado = s3.head_object(Bucket=self.bucket_name, Key=source_directory_2)
-                response = s3.list_objects_v2(Bucket=self.bucket_name, Prefix=destination_directory)
-                objetos = response.get('Contents', [])
-                if objetos :
-                    print("No existe el directorio destino.")
-                    print("Copy", "No se puede copiar. No existe el directorio destino.")
-                    
-                    Escribir_Consola(Fecha_Format + " " + " ERROR: No se puede copiar. No existe el directorio destino." + '\n')
-                    
-                else:
+           
+            if valor3 == 'server' and valor4 == 'bucket':
+                #valor1 = 'prueba1/prueba2.txt' EJEMPLOS
+                #valor2 = 'carpeta   123' + '/' EJEMPLOS
+                ruta_base = r'D:\USAC\Vacas Junio 2023\Archivos\Proyecto_1'
+                folder_file_name = valor1
+                local_folder_path = os.path.join(ruta_base, folder_file_name)
+                nombre_archivo = valor1.split('/')[-2]
+                s3_file_key = os.path.join(valor2, nombre_archivo)
+                try:
+                    self.s3.upload_file(local_folder_path, self.bucket_name, s3_file_key)
+                    print("El archivo se ha subido correctamente a S3.")
+                except Exception as e:
+                    print("Ocurrió un error al subir el archivo a S3:", e)
+            elif valor3 == 'bucket' and valor4 == 'server':
+                s3_folder = valor1
+                ruta_base = r'D:\USAC\Vacas Junio 2023\Archivos\Proyecto_1'
+                folder_name = valor2
+                local_folder_path = os.path.join(ruta_base, folder_name)
+                objects = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=s3_folder)['Contents']
 
-                    print("Existe el directorio destino")
-                    #cadena = valor1
-                    #resultado = cadena.split("/")[-1]
-                    #destination_key = destination_directory + resultado
+                for obj in objects:
+                    #s3_file_key = obj['Key']
+                    #patron = r'^\w+\/\w+\.\w+$'
+                    #if re.match(patron, s3_file_key):
+                    s3_path = obj['Key']
+                    local_path = os.path.join(local_folder_path, os.path.basename(s3_path))
+                    self.s3.download_file(self.bucket_name, s3_path, local_path)
+                    #else:
+                        #print("Es un directorio")
+            elif valor3 == 'bucket' and valor4 == 'bucket':
 
+                source_directory = valor1 #'carpeta1/prueba1.txt' # valor 1
+                destination_directory = valor2 + '/' #'carpeta   123/' #  valor2
+                try:
+                    #Validar la existencia del archivo a copiar
+                    self.s3.head_object(Bucket=self.bucket_name, Key=source_directory)
+                    response = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=destination_directory)
+                    objetos = response.get('Contents', [])
+                    if objetos :
+                        print("Existe el directorio.")
+                        '''
+                        Escribir_Consola(Fecha_Format + " " + " ERROR: No se puede copiar. No existe el directorio destino." + '\n')
+                        '''
+                        #Copy -from->/carpeta1/prueba1.txt -to->/”carpeta 2”/ -type_to->sever -type_from->bucket
 
+                        #source_directory_2 = valor1
+                        cadena = valor1 #'carpeta1/prueba1.txt'
+                        resultado = cadena.split("/")[-1]
+                        destination_key = destination_directory + resultado
+                        try:
+                            self.s3.copy_object(
+                            Bucket=self.bucket_name,
+                            CopySource={'Bucket': self.bucket_name, 'Key': source_directory},
+                            Key=destination_key
+                            )
+                            print(f"Se copió el archivo {source_directory} de {source_directory} a {destination_directory}.")
+                            #Escribir_Consola(Fecha_Format + " " + "Se copio el archivo del directorio origen al directorio destino." + '\n')
+                            #messagebox.showinfo("Copy", "Se copio el archivo del directorio origen al directorio destino.")
+                        except Exception as e:
+                            print(f"Error al copiar el archivo: {e}")
+                            #messagebox.showerror("Error", "Error al copiar el archivo.")
+                            #Escribir_Consola(Fecha_Format + " " + "ERROR : No se copio el archivo del directorio origen al directorio destino." + '\n')
+                    else:
+                        print(" No Existe el directorio")
+                        print("Copy", "No se puede copiar. No existe el directorio destino.")
+                except Exception as e:
+                    print("Error", "El archivo no existe en S3.")
 
-                    
-                    try:
-                        s3.copy_object(
-                        Bucket=bucket_name,
-                        CopySource={'Bucket': bucket_name, 'Key': source_directory_2},
-                        Key=destination_key
-                        )
-                    
-                        print(f"Se copió el archivo {source_directory_2} de {source_directory} a {destination_directory}.")
-
-                        Escribir_Consola(Fecha_Format + " " + "Se copio el archivo del directorio origen al directorio destino." + '\n')
-
-                        messagebox.showinfo("Copy", "Se copio el archivo del directorio origen al directorio destino.")
-            
-                    
-                    except Exception as e:
-
-                        print(f"Error al copiar el archivo: {e}")
-
-                        messagebox.showerror("Error", "Error al copiar el archivo.")
-
-                        Escribir_Consola(Fecha_Format + " " + "ERROR : No se copio el archivo del directorio origen al directorio destino." + '\n')
-            
-            except Exception as e:
-
-                messagebox.showerror("Error", "El archivo no existe en S3.")
-
-                Escribir_Consola(Fecha_Format + " " + " ERROR: No se puede copiar. No existe el archivo en S3." + '\n')
-            '''
         else:
+            source_directory = valor1 + '/'
+            destination_directory = valor2 + '/'
             if valor3 == 'server' and valor4 == 'bucket':
                 #To Server From Bucket Directorio entero hacia una carpeta de un bucket
             
