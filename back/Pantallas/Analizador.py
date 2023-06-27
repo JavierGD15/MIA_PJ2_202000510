@@ -1,6 +1,7 @@
 import re
 
 def parse_command(command):
+    
     patterns = {
         'create': {
             'required': [
@@ -94,6 +95,8 @@ def parse_command(command):
         },
     }
 
+    matches_list = []
+
     for cmd, pattern_dict in patterns.items():
         matches = {}
         for pattern in pattern_dict['required']:
@@ -110,7 +113,16 @@ def parse_command(command):
             if match:
                 arg = pattern.split('->')[0].lstrip('-')
                 matches[arg] = match[0]
+        
+        total_params = len(matches)
+        
+        # Check if the command name is at the start of the string.
+        if re.match(r'^' + cmd, command, re.IGNORECASE):
+            matches_list.append((cmd, matches, total_params))
 
-        return cmd, matches  # If all required arguments (and any optional arguments) were found, return the command and matches.
+    if matches_list:
+        # Ordenamos por el número total de parámetros (índice 2 de cada tupla) en orden descendente y devolvemos la primera coincidencia.
+        matches_list.sort(key=lambda x: x[2], reverse=True)
+        return matches_list[0][0], matches_list[0][1]
 
     return None, None  # If no command matched, return None, None.

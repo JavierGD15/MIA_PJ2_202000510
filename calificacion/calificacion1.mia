@@ -1,34 +1,41 @@
-configure -type->local -encrypt_log->false -encrypt_read->false
-CREATE -name->calificacion1.txt  -path->/carpeta1/ -body->"Este es el contenido del archivo1" 
-crEatE -name->calificacion2.txt  -path->/carpeta1/ -body->"Este es el contenido del archivo2"
-create -name->calificacion1.txt  -path->/"carpeta Calificacion"/ -body->"Un sistema de archivos es una estructura de directorios completa, que incluye un directorio raíz y cualquier subdirectorio y archivos por debajo suyo"
-create -name->calificacion2.txt  -path->/"carpeta Calificacion"/ -body->"contenido archivo2"
-create -name->calificacion3.txt  -path->/"carpeta Calificacion"/ -body->"Se trata de habilitar uno o varios discos duros en una red local, de forma que los datos que allí se almacenen permanezcan accesibles a todos los dispositivos que quieran utilizarlos"
-renAme -path->/carpeta1/calificacion1.txt -name->nuevo_cali1.txt
-rename -path->/carpeta1/calificacion1.txt -name->nuevo_cali2.txt
-renAme -path->/carpeta_no_existe/calificacion2.txt -name->nuevo_cali2.txt
-renAme -path->/carpeta1/calificacion2.txt -name->nuevo_cali2.txt
-coPy -from->/carpeta1/nuevo_cali1.txt -to->/"carpeta Calificacion"/ 
-transfer -from->/carpeta1/nuevo_cali2.txt -to->/"carpeta Calificacion"/ -mode->"local"
-delete -path->/carpeta1/ -name->calificacion2.txt
-delete -path->/"carpeta Calificacion"/ -nAME->calificacion3.txt
-modify -paTH->/"carpeta Calificacion"/nuevo_cali1.txt -body->"Se trata de habilitar uno o varios discos duros en una red local, de forma que los datos que allí se almacenen permanezcan accesibles a todos los dispositivos que quieran utilizarlos"
-add -path->/"carpeta Calificacion"/nuevo_cali1.txt  -BODY->"De esa forma, el usuario no solo tiene acceso al propio almacenamiento del dispositivo que está usando, sino que también dispone de un almacenamiento común que comparte con otros dispositivos conectados a esa misma red."
-create -name->calificacion4.txt  -path->/carpeta1/ejemplo/ -body->"Este es el contenido del archivo4"
-create -name->calificacion5.txt  -path->/carpeta1/ejemplo/ -body->"Este es el contenido del archivo5"
-create -name->calificacion6.txt  -path->/carpeta1/ejemplo/ -body->"Este es el contenido del archivo6"
-TRANSFER -from->/carpeta1/ -to->/"carpeta Calificacion"/ -mode->"local"
-CREATE -name->calificacion1.txt  -path->/"carpeta Calificacion 2"/ -body->"Un sistema de archivos es una estructura de directorios completa, que incluye un directorio raíz y cualquier subdirectorio y archivos por debajo suyo"
-CREATE -name->calificacion2.txt  -path->/"carpeta Calificacion 2"/ -body->"contenido archivo2"
-CREATE -name->calificacion3.txt  -path->/"carpeta Calificacion 2"/ -body->"Se trata de habilitar uno o varios discos duros en una red local, de forma que los datos que allí se almacenen permanezcan accesibles a todos los dispositivos que quieran utilizarlos"
-TRANSFER -from->/"carpeta Calificacion"/ -to->/carpeta1/ -mode->"local"
-delete -path->/"carpeta no_existe"/ 
-CREATE -name->calificacion1.txt  -path->/"carpeta prueba 2"/ -body->"Un sistema de archivos es una estructura de directorios completa, que incluye un directorio raíz y cualquier subdirectorio y archivos por debajo suyo"
-CREATE -name->calificacion2.txt  -path->/"carpeta prueba 2"/ -body->"contenido archivo2"
-CREATE -name->calificacion3.txt  -path->/"carpeta prueba 2"/ -body->"Se trata de habilitar uno o varios discos duros en una red local, de forma que los datos que allí se almacenen permanezcan accesibles a todos los dispositivos que quieran utilizarlos"
-DELETE -path->/"carpeta prueba 2"/ 
-ADD -patH->/"carpeta Calificacion 2"/calificacion1.txt  -BODY->"Este texto se agrego al calificacion 1 de la carpeta calificacion 2."
-backup
-modify -paTH->/"carpeta Calificacion 2"/archivo_no_existe.txt -body->"Este texto se modifico"
-modify -paTH->/"carpeta Calificacion 2"/calificacion2.txt -body->"Este texto se modifico"
-coPy -from->/carpeta no_existe/archiv_no_existe.txt -to->/"carpeta Calificacion"/ 
+creatE -name->calificacion1.txt -path->/carpeta_calificacion1/ -bodY->"Contenido del archivo calificacion1 carpeta_calificacion1" -type->server
+Create -name->calificacion2.txt -path->/carpeta_calificacion1/ -body->"Contenido del archivo calificacion2 carpeta_calificacion1" -Type->server
+Create -namE->calificacion3.txt -path->/carpeta_calificacion1/ -body->"Contenido del archivo calificacion3 carpeta_calificacion1" -Type->server
+Create -namE->calificacion4.txt -path->/carpeta_calificacion1/ -body->"Contenido del archivo calificacion4 carpeta_calificacion1" -Type->server
+creatE -name->calificacion1.txt -path->/carpeta_calificacion1/ -bodY->"Contenido del archivo calificacion1 carpeta_calificacion1" -type->bucket
+Create -name->calificacion2.txt -path->/carpeta_calificacion1/ -body->"Contenido del archivo calificacion2 carpeta_calificacion1" -Type->bucket
+Create -namE->calificacion3.txt -path->/carpeta_calificacion1/ -body->"Contenido del archivo calificacion3 carpeta_calificacion1" -Type->bucket
+Create -namE->calificacion4.txt -path->/carpeta_calificacion1/ -body->"Contenido del archivo calificacion4 carpeta_calificacion1" -Type->bucket
+MODIFY -path->/carpeta_calificacion1/calificacion1.txt -type->bucket -bodY->"Contenido del archivo calificacion1 carpeta_calificacion1 en el bucket"
+MODIFy -path->/carpeta_calificacion1/calificacion2.txt -Type->bucket -body->"Contenido del archivo calificacion2 carpeta_calificacion1 en el bucket"
+MoDIFY -path->/carpeta_calificacion1/calificacion3.txt -Type->bucket -body->"Contenido del archivo calificacion3 carpeta_calificacion1 en el bucket"
+modifY -path->/carpeta_calificacion1/calificacion4.txt -Type->bucket -body->"Contenido del archivo calificacion4 carpeta_calificacion1 en el bucket"
+DELETE -path->/carpeta_calificacion1/calificacion4.txt -Type->server 
+creatE -name->calificacion1.txt -path->/"carpeta ejemplo"/ -bodY->"Contenido del archivo calificacion1 carpeta ejemplo" -type->server
+Create -name->calificacion2.txt -path->/"carpeta ejemplo"/ -body->"Contenido del archivo calificacion2 carpeta ejemplo" -Type->server
+Create -namE->calificacion3.txt -path->/"carpeta ejemplo"/ejemplo1 -body->"Contenido del archivo calificacion3 carpeta ejemplo" -Type->server
+Create -namE->calificacion4.txt -path->/"carpeta ejemplo"/ejemplo1 -body->"Contenido del archivo calificacion4 carpeta ejemplo" -Type->server
+Create -namE->calificacion3.txt -path->/"carpeta ejemplo"/ejemplo2 -body->"Contenido del archivo calificacion3 carpeta ejemplo 2" -Type->server
+Create -namE->calificacion4.txt -path->/"carpeta ejemplo"/ejemplo2 -body->"Contenido del archivo calificacion4 carpeta ejemplo 2" -Type->server
+Create -namE->calificacion3.txt -path->/"carpeta ejemplo"/ejemplo3 -body->"Contenido del archivo calificacion3 carpeta ejemplo 2" -Type->server
+Create -namE->calificacion4.txt -path->/"carpeta ejemplo"/ejemplo3 -body->"Contenido del archivo calificacion4 carpeta ejemplo 2" -Type->server
+DELETE -TYPE->server -paTh->/"carpeta ejemplo"/ejemplo3/calificacion4.txt 
+MoDIFY -path->/"carpeta ejemplo"/ejemplo1/calificacion3.txt -Type->server -body->"Contenido del archivo calificacion3 carpeta ejemplo ejemplo1"
+modifY -path->/"carpeta ejemplo"/ejemplo1/calificacion4.txt -Type->server -body->"Contenido del archivo calificacion4 carpeta ejemplo ejemplo1"
+rename -path->/carpeta_calificacion1/calificacion1.txt -type->bucket -Name->"calificacion bucket 1"
+rename -path->/carpeta_calificacion1/calificacion2.txt -type->bucket -Name->"calificacion bucket 2"
+rename -path->/carpeta_calificacion1/calificacion1.txt -type->server -Name->"calificacion server 1"
+DELETE -TYPE->bucket -paTh->/carpeta_calificacion1/calificacion4.txt
+creatE -name->calificacion1.txt -path->/carpeta_calificacion1/"carpeta ejemplo"/ejemplo3/ -bodY->"Contenido del archivo calificacion1 carpeta ejemplo" -type->bucket
+Create -name->calificacion2.txt -path->/carpeta_calificacion1/"carpeta ejemplo"/ejemplo3/ -body->"Contenido del archivo calificacion2 carpeta ejemplo" -Type->bucket
+Create -namE->calificacion3.txt -path->/carpeta_calificacion1/"carpeta ejemplo"/ejemplo4/ -body->"Contenido del archivo calificacion3 carpeta ejemplo" -Type->bucket
+Create -namE->calificacion4.txt -path->/carpeta_calificacion1/"carpeta ejemplo"/ejemplo4/ -body->"Contenido del archivo calificacion4 carpeta ejemplo" -Type->bucket
+copy -from->/"carpeta ejemplo"/ejemplo2 -type_from->server -type_to->server -to->/"carpeta ejemplo"/
+copy -from->/"carpeta ejemplo"/ejemplo2 -to->/"carpeta ejemplo"/ejemplo1 -type_from->server -type_to->server
+copy -from->/"carpeta ejemplo"/ejemplo2 -to->/carpeta_calificacion1/"carpeta ejemplo"/ -type_from->server -type_to->bucket
+copy -from->/"carpeta ejemplo"/ejemplo2 -to->/carpeta_calificacion1/"carpeta ejemplo"/ -type_from->server -type_to->bucket
+copy -to->/"carpeta ejemplo"/ejemplo2 -from->/carpeta_calificacion1/"calificacion bucket 1.txt" -type_from->bucket -type_to->server
+copy -to->/carpeta_calificacion1/"carpeta ejemplo"  -from->/carpeta_calificacion1/"calificacion bucket 1.txt" -type_from->bucket -type_to->bucket
+Transfer -from->/carpeta_calificacion_1/"calificacion server 1.txt" -type_from->server -type_to->server -to->/"carpeta ejemplo"/
+Transfer -to->/carpeta_calificacion1/"carpeta ejemplo"/ejemplo3 -from->/carpeta_calificacion1/"calificacion bucket 1.txt" -type_from->bucket -type_to->bucket
+Transfer -from->/carpeta_calificacion1/"carpeta ejemplo"/ejemplo3/calificacion1.txt -to->/"carpeta ejemplo"/ -type_from->bucket -type_to->server

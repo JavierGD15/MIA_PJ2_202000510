@@ -1,5 +1,11 @@
-from Cryptodome.Cipher import AES
-from Cryptodome.Util.Padding import unpad
+#linux
+# from Cryptodome.Cipher import AES
+# from Cryptodome.Util.Padding import unpad
+
+#windows
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import unpad
+
 from pathlib import Path
 import binascii
 
