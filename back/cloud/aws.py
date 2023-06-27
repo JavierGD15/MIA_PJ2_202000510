@@ -1,4 +1,6 @@
+import re
 import boto3
+import os
 from botocore.exceptions import ClientError
 
 
@@ -145,7 +147,135 @@ class AWS:
         else:
             eliminar_archivo()
 
+    def copy(self,valor1,valor2,valor3,valor4):
+    
+        patron = r'^\w+\/\w+\.\w+$'
+        source_directory = valor1 + '/'
 
+        destination_directory = valor2 + '/'
+        #Valor3 Copy -from->/carpeta1/prueba1.txt -to->/”carpeta 2”/ -type_to->sever -type_from->bucket
+        #Valor3 type_to
+        #Valor4 type_from
+        #To Server From Bucket
+        if re.match(patron, valor1):
+
+            print("Arhcivo")
+            '''
+            source_directory_2 = valor1
+            try:
+                #resultado = s3.head_object(Bucket=self.bucket_name, Key=source_directory_2)
+                response = s3.list_objects_v2(Bucket=self.bucket_name, Prefix=destination_directory)
+                objetos = response.get('Contents', [])
+                if objetos :
+                    print("No existe el directorio destino.")
+                    print("Copy", "No se puede copiar. No existe el directorio destino.")
+                    
+                    Escribir_Consola(Fecha_Format + " " + " ERROR: No se puede copiar. No existe el directorio destino." + '\n')
+                    
+                else:
+
+                    print("Existe el directorio destino")
+                    #cadena = valor1
+                    #resultado = cadena.split("/")[-1]
+                    #destination_key = destination_directory + resultado
+
+
+
+                    
+                    try:
+                        s3.copy_object(
+                        Bucket=bucket_name,
+                        CopySource={'Bucket': bucket_name, 'Key': source_directory_2},
+                        Key=destination_key
+                        )
+                    
+                        print(f"Se copió el archivo {source_directory_2} de {source_directory} a {destination_directory}.")
+
+                        Escribir_Consola(Fecha_Format + " " + "Se copio el archivo del directorio origen al directorio destino." + '\n')
+
+                        messagebox.showinfo("Copy", "Se copio el archivo del directorio origen al directorio destino.")
+            
+                    
+                    except Exception as e:
+
+                        print(f"Error al copiar el archivo: {e}")
+
+                        messagebox.showerror("Error", "Error al copiar el archivo.")
+
+                        Escribir_Consola(Fecha_Format + " " + "ERROR : No se copio el archivo del directorio origen al directorio destino." + '\n')
+            
+            except Exception as e:
+
+                messagebox.showerror("Error", "El archivo no existe en S3.")
+
+                Escribir_Consola(Fecha_Format + " " + " ERROR: No se puede copiar. No existe el archivo en S3." + '\n')
+            '''
+        else:
+            if valor3 == 'server' and valor4 == 'bucket':
+                #To Server From Bucket Directorio entero hacia una carpeta de un bucket
+            
+                response_2 = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=destination_directory)
+                objetos_2 = response_2.get('Contents', [])
+                if len(objetos_2) == 0 :
+                    print("Copy", "No se puede copiar. No existe el directorio destino.")
+                    print(" No existe el direcotiro destino")
+                else:
+                    ruta_base = r'D:\USAC\Vacas Junio 2023\Archivos\Proyecto_1'
+                    folder_name = valor1
+                    local_folder_path = os.path.join(ruta_base, folder_name)
+                    
+                    for root, dirs, files in os.walk(local_folder_path):
+                            for file in files:
+                                local_file_path = os.path.join(root, file)
+                                relative_path = os.path.relpath(local_file_path, local_folder_path)
+                                s3_file_key = os.path.join(destination_directory, relative_path).replace("\\", "/")
+                                self.s3.upload_file(local_file_path, self.bucket_name, s3_file_key)
+            elif valor3 == 'bucket' and valor4 == 'server':
+                s3_folder = valor1
+                ruta_base = r'D:\USAC\Vacas Junio 2023\Archivos\Proyecto_1'
+                folder_name = valor2
+                local_folder_path = os.path.join(ruta_base, folder_name)
+                objects = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=s3_folder)['Contents']
+
+                for obj in objects:
+                    s3_file_key = obj['Key']
+                    patron = r'^\w+\/\w+\.\w+$'
+                    if re.match(patron, s3_file_key):
+                        s3_path = obj['Key']
+                        local_path = os.path.join(local_folder_path, os.path.basename(s3_path))
+                        self.s3.download_file(self.bucket_name, s3_path, local_path)
+                    else:
+                        print("Es un directorio")
+            elif valor3 == 'bucket' and valor4 == 'bucket':
+
+                response = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=source_directory)
+
+                objetos = response.get('Contents', [])
+
+
+                for objeto in objetos:
+
+                    source_key = objeto['Key']
+
+                    destination_key = source_key.replace(source_directory, destination_directory)
+
+                    self.s3.copy_object(
+
+                        Bucket=self.bucket_name,
+
+                        CopySource={'Bucket': self.bucket_name, 'Key': source_key},
+
+                        Key=destination_key
+
+                    )
+
+                    print(f"Se copió el archivo de {source_key} a {destination_key}.")
+
+                    #Escribir_Consola(Fecha_Format + " " + f"Se copió el archivo de {source_key} a {destination_key}." + '\n')
+
+                print("Copy", "Se copiaron los archivos del directorio origen al directorio destino.")
+                
+                #Escribir_Consola(Fecha_Format + " " + "Se copiaron los archivos del directorio origen al directorio destino." + '\n')
 
 
 
