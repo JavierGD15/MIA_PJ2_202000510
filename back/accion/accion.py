@@ -14,50 +14,13 @@ import sys
 sys.path.append(r'Archivos 2/back/accion')
 from cloud.accion import AWS
 
-# variables globales para guardar Configuracion de Archivos
-tipoAlmacena = 0  # 1 = local , 2 = nube
-encrypt_log = 0  # 1 = true , 2 = false
-encrypt_read = 0  # 1 = true , 2 = false
-llave = ''
-# string llave para desencriptar.   Si se tiene los valores default , es porque no se ha ejecutado el comando configure
 
-bitacora = []  # lista que lleva el registro de bitacora
+
 _initPath = '/Archivos'  # carpeta donde se almacenaran localmente los archivos
 aws = AWS()
 
-# metodos estaticos (Comandos)-----------------------------------------------------------------------------------------
-def variables_default():
-    global tipoAlmacena
-    global encrypt_log
-    global encrypt_read
-    global llave
 
-    tipoAlmacena = 0
-    encrypt_log = 0
-    encrypt_read = 0
-    llave = ''
-
-
-def encriptar(_texto):
-    global llave
-    if _texto:
-        if llave == '':
-            raise Exception('No key ingresado o registrado')
-        aes = pyaes.AESModeOfOperationCTR(llave.encode())
-        return (base64.b64encode(aes.encrypt(_texto))).decode('utf-8')
-
-
-def desencriptar(texto_encriptados):
-    global llave
-    if texto_encriptados:
-        if llave == '':
-            raise Exception('No key ingresado o registrado')
-        aes = pyaes.AESModeOfOperationCTR(llave.encode())
-        return (aes.decrypt(base64.b64decode(texto_encriptados))).decode('utf-8')
-
-
-
-#ya
+#ya ya
 def create(_name, _body, _path, _tipo):
     global _initPath
 
@@ -87,8 +50,9 @@ def create(_name, _body, _path, _tipo):
             return True
 
         elif _tipo == 'bucket':
-            msj = aws.create(_path, _name, _body)
-            return True
+            
+            msj = aws.create(_name,_path , _body)
+            return msj
         else:
             return False
 
@@ -97,7 +61,7 @@ def create(_name, _body, _path, _tipo):
         print(f"Error al agregar contenido al archivosssss: {e}")
         return False
 
-#ya
+#ya ya
 def delete(_path, _tipo, _name=''):
     global _initPath
     if _path == '':
@@ -105,7 +69,6 @@ def delete(_path, _tipo, _name=''):
 
     try:
         if _tipo == 'server':  # operacion local
-
             # crea carpeta localmente
             home = Path.home()
             home = str(home) + _initPath + _path
@@ -129,112 +92,34 @@ def delete(_path, _tipo, _name=''):
         elif _tipo == 'bucket':
             # Elimina carpeta en la nube
             #aws = aws()
-            msj = aws.delete(_path, _name)
-            return True
+            msj = aws.delete(_name, _path)
+            return msj
         else:
             return False
     except:
         return False
 
-
+#y
 def copy(_from, _to, type_to,type_from):
-    global _initPath
-
+    
     try:
-
-        
-        if type_to == 'server':  # operacion local
-            if type_from == 'server':
-                home = Path.home()
-                _from = str(home) + _initPath + _from
-                _from = _from.replace("\\", "/")
-                _to = str(home) + _initPath + _to
-                if Path(_from).exists():  # si la carpeta existe , procede a verificar que el archivo exista
-                    if _name != '':
-                        if Path(_from + _name).exists():  # si existe el archivo procede a copiar el archivo a la ruta
-                            try:
-                                shutil.copy(_from + _name, _to)
-                                return True
-                            except:
-                                return False
-                        else:
-                            return False
-                    else:  # procede a copiar el contenido de toda la carpeta
-                        try:
-                            copy_tree(_from, _to)
-                            return True
-                        except:
-                            return False
-                else:
-                    return False
-            else:
-                _from += '/'
-            
-        elif type_to == 'bucket':
-            if type_from == 'server':
-                pass
-            else:
-                _from += '/'
-            # mueve a la carpeta en la nube
-            msj = aws.copy(_from+ _name, _to )
-            return True
-        else:
-            return False
+        msj = aws.copy(_from,  _to, type_from, type_to,)
+        return msj
     except:
         return False
 
-
+#y
 def transfer(_from, _to, type_to,type_from):  # mode recibe 1 = local , 2 c= cloud
-    global _initPath
-
     try:
-        
-        
-
-        if _mode == '1':  # operacion local
-            home = Path.home()
-            _from = str(home) + _initPath + _from
-            _from = _from.replace("\\", "/")
-            _to = str(home) + _initPath + _to
-            print(_from)
-            if Path(_from).exists():  # si la carpeta existe , procede a verificar que el archivo exista
-                if _name != '':
-                    if Path(_from + _name).exists():  # si existe el archivo procede a mover el archivo a la ruta
-                        try:
-                            shutil.move(_from + _name, _to)
-                            return True
-                        except:
-                             return False
-                    else:
-                       
-                        return False
-                else:  # procede a mover el contenido de toda la carpeta
-                    try:
-                        shutil.move(_from, _to) 
-                        return True
-                    except:
-                        return False
-            else:
-                
-                return False
-
-        elif _mode == '2':
-            # mueve a la carpeta en la nube
-            msj = aws.transfer(_from+ _name, _to )
-            return True
-        else:
-           
-            return False
+        msj = aws.transfer(_from,  _to, type_from, type_to,)
+        return msj
     except:
         return False
 
-#ya
+#ya ya
 def rename(_path, _name, _new_name,_tipo):
     global _initPath
-    print(_path)
-    print(_name)
-    print(_new_name)
-    print(_tipo)
+    _path = _path.replace('"', '')
     try:
         if _path == '':
             _path += '/'
@@ -285,17 +170,19 @@ def rename(_path, _name, _new_name,_tipo):
 
         elif _tipo == 'bucket':
             # realiza rename en la nube
-            msj = aws.rename(_path + _name, _new_name)
-            return True
+            msj = aws.rename(_path, _name, _new_name)
+            return msj
         else:
             return False
     except Exception as e:
         print(f"Error al renombrar : {e}")
 
-#ya
+#ya ya
 def modify(_path, _name, _body, _tipo):
     global _initPath
 
+    _path = _path.replace('"', '')
+    _name = _name.replace('"', '')
     try:
         if _path == '':
             _path += '/'
@@ -327,22 +214,30 @@ def modify(_path, _name, _body, _tipo):
                 return False
 
         elif _tipo == 'bucket':
-            # realiza modify en la nube   , pendiente
-            msj = aws.modify(_path + _name, _body)
-            return True
+            msj = aws.modify(_path, _name, _body,)
+            return msj
         else:
             return False
     except:
         return False
 
+#ya ya
 def backup(type_to,type_from,name ,_ip='', _port=''):
     try:
-        home = Path.home()
-        if _tipo == 'server':
-            msj = aws.backup_local(str(home) + _initPath)
+        if type_from == 'server':
+            if type_to == 'bucket':
+                msj = aws.backup_server_bucket(name)
+                return msj
+            else:
+                pass
             return True
-        elif _tipo == 'bucket':
-            msj = aws.backup_nube(str(home) + _initPath)
+        elif type_from == 'bucket':
+            if type_to == 'server':
+                print('entro')
+                msj = aws.backup_bucket_server(name)
+                return msj
+            else:
+                pass
             return True
         else:
             return False
@@ -350,9 +245,30 @@ def backup(type_to,type_from,name ,_ip='', _port=''):
     except Exception as e:
         print(f"Error al agregar contenido al archivosssss: {e}")
         return False
-
+#ya ya
 def recovery(type_to,type_from, _name,_ip='', _port=''):
-    pass
+    try:
+        if type_from == 'server':
+            if type_to == 'bucket':
+                msj = aws.recovery_server_bucket(_name)
+                return msj
+            else:
+                pass
+            return True
+        elif type_from == 'bucket':
+            if type_to == 'server':
+                print('entro')
+                msj = aws.recovery_bucket_server(_name)
+                return msj
+            else:
+                pass
+            return True
+        else:
+            return False
+        
+    except Exception as e:
+        print(f"Error al agregar contenido al archivosssss: {e}")
+        return False
 #ya
 def delete_all(_tipo):
     global _initPath
@@ -375,12 +291,33 @@ def delete_all(_tipo):
                     print('Failed to delete %s. Reason: %s' % (file_path, e))
             return True
         elif _tipo == 'bucket':
-            pass
+            msj = aws.delete_all()
+            return msj
         else:
             return False
     except:
         return False
-
-def opens(type_to,type_from, _name,_ip='', _port=''):
-    pass
-
+#ya ya
+def opens(type, name,_ip='', _port=''):
+    if type == 'server':
+        if _ip != '' and _port != '':
+            pass
+        else:
+            name = name.replace('"', '')
+            
+            # crea carpeta localmente
+            home = Path.home()
+            home = str(home) + _initPath + name
+            home = home.replace("\\", "/")
+            # Abrir y leer el archivo
+            with open(home, 'r') as file:
+                print("El contenido del archivo es:")
+                print(file.read())
+            return True
+    elif type == 'bucket':
+        if _ip != '' and _port != '':
+            msj = aws.opens_grupal(name, _ip=_ip, _port=_port)
+        else:
+            msj = aws.opens_normal(name)
+    else:
+        return False

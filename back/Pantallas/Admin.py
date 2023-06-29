@@ -15,7 +15,7 @@ class Application:
         for line in texto.splitlines():
             
             cmd, params = parse_command(line)
-            print(cmd)
+            
             if params is not None:
                 if cmd == 'create':
                     if create(params['name'], params['body'], params['path'].replace('"', ''), params['type']):
@@ -35,14 +35,14 @@ class Application:
                              resultado+= "Error en Eliminacion en "+params['path']+ "\n"
                 elif cmd == 'copy':
                     if copy(params['from'].replace('"', ''), params['to'].replace('"', ''), params['type_to'], params['type_from']):
-                        resultado+= "Copia exitosa en "+params['path']+ "\n"
+                        resultado+= "Copia exitosa en "+params['to']+ "\n"
                     else:
-                        resultado+= "Error en copia en "+params['path']+ "\n"
+                        resultado+= "Error en copia en "+params['to']+ "\n"
                 elif cmd == 'transfer':
                     if transfer(params['from'].replace('"', ''), params['to'].replace('"', ''), params['type_to'], params['type_from']):
-                        resultado+= "Transferencia exitosa en "+params['path']+ "\n"
+                        resultado+= "Transferencia exitosa en "+params['to']+ "\n"
                     else:
-                        resultado+= "Error en la transferencia en "+params['path']+ "\n"
+                        resultado+= "Error en la transferencia en "+params['to']+ "\n"
                 elif cmd == 'rename':
                     if rename(params['path'].rsplit('/', 1)[0]+'/'.replace('"', ''), params['path'].split("/")[-1], params['name'].replace('"', ''), params['type']):
                         resultado+= "Renombrado exitoso"+ "\n"

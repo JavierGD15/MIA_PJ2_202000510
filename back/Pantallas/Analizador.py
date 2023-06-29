@@ -86,7 +86,7 @@ def parse_command(command):
         'open': {
             'required': [
                 r'-type->(.*?)(?=\s*-|$)', 
-                r'-name->\"(.*?)\"(?=\s*-|$)'
+                r'-name->(.*?)(?=\s*-|$)'
             ],
             'optional': [
                 r'-ip->(.*?)(?=\s*-|$)', 
@@ -106,7 +106,7 @@ def parse_command(command):
                 matches[arg] = match[0]
                 
         if len(matches) != len(pattern_dict['required']):
-            continue  # If not all required arguments were found, move on to the next command.
+            continue  
 
         for pattern in pattern_dict['optional']:
             match = re.findall(pattern, command, re.IGNORECASE)
@@ -116,13 +116,13 @@ def parse_command(command):
         
         total_params = len(matches)
         
-        # Check if the command name is at the start of the string.
+        
         if re.match(r'^' + cmd, command, re.IGNORECASE):
             matches_list.append((cmd, matches, total_params))
 
     if matches_list:
-        # Ordenamos por el número total de parámetros (índice 2 de cada tupla) en orden descendente y devolvemos la primera coincidencia.
+        print(matches_list)
         matches_list.sort(key=lambda x: x[2], reverse=True)
         return matches_list[0][0], matches_list[0][1]
 
-    return None, None  # If no command matched, return None, None.
+    return None, None 
