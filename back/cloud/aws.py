@@ -479,12 +479,9 @@ def modify(self,valor1,valor2):
 #Transfer
 
 def transfer(self,valor1,valor2,valor3,valor4):
-
     patron = r'^[\w\s]+\/[\w\s]+\.\w+$'
     # valor1 = 'carpeta prueba transfer/05122021.txt' EJEMPLO ESTRUCTURA
-    # valor2 = 'carpeta prueba transfer 4' EJEMPLO ESTRUCTURA
-
-
+    # valor2 = 'carpeta prueba transfer 4' EJEMPLO ESTRUCTURAy
     if re.match(patron, valor1):
 
         if valor3 == 'bucket' and valor4 == 'bucket':
@@ -573,3 +570,98 @@ def transfer(self,valor1,valor2,valor3,valor4):
 
         elif valor3 == 'server' and valor4 == 'bucket':
                 print("lo que viene")
+
+    else:
+
+        if valor3 == 'bucket' and valor4 == 'bucket':
+
+            #valor1 = 'carpeta_calificacion1/carpeta ejemplo/ejemplo3' EJEMPLO DE LA RUTA
+            #valor2 = 'carpeta_transfer_2' # EJEMPLO DE LA RUTA
+            source_directory = valor1
+            destination_directory = valor2 + '/'
+
+            #transfer -from->/”carpeta 2”/ -to->/carpeta1/ -type_to->sever -type_from->bucket
+
+            response_1 = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=source_directory)
+            objetos_1 = response_1.get('Contents', [])
+ 
+            if len(objetos_1) == 0:
+                print(f"La ruta de origen '{self.bucket_name}/{source_directory}' no existe.")
+                #Escribir_Consola(Fecha_Format + " " + f"ERROR :La ruta de origen '{bucket_name}/{source_directory}' no existe." + '\n')
+                print("Error",  "ERROR :La ruta de origen no existe.")
+
+            elif len(objetos_1) > 1:
+                response_2 = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=destination_directory)
+                objetos_2 = response_2.get('Contents', [])
+                if len(objetos_2) == 0:
+                    print("directorio destino no existe")
+                    print(source_directory)
+                    print(f"La ruta de destino '{self.bucket_name}/{destination_directory}' no existe.")
+                    #Escribir_Consola(Fecha_Format + " " + f"La ruta de destino '{str(bucket_name)}/{str(destination_directory)}' no existe." + '\n')
+                    print("Tranfers",  "La ruta de destino no existe.")
+                    self.s3.put_object(Bucket=self.bucket_name , Key=destination_directory)
+                    print("Tranfers",  " Se creo la ruta de destino.")
+                    #Escribir_Consola(Fecha_Format + " " + f"La ruta de destino '{str(bucket_name)}/{str(destination_directory)}' fue creada." + '\n')
+                    response = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=source_directory)
+                    archivos_origen = response['Contents'] if 'Contents' in response else []
+                    for archivo_origen in archivos_origen:
+                        if 'Key' in archivo_origen and archivo_origen['Key'].split('/')[-1]:
+                            nombre_archivo = archivo_origen['Key'].split('/')[-1]
+                            ruta_archivo_destino = destination_directory + nombre_archivo
+                            try:
+                                self.s3.head_object(Bucket=self.bucket_name, Key=ruta_archivo_destino)
+                                print(f'El archivo "{nombre_archivo}" ya existe en el directorio de destino.')
+                                extension = os.path.splitext(nombre_archivo)[1]
+                                nuevo_nombre = input('Por favor, ingresa un nuevo nombre (sin extensión): ')
+                                #nuevo_nombre = simpledialog.askstring("Nuevo Nombre", f"Ingrese el nuevo nombre para el archivo {nombre_archivo}:")
+                                nombre_nuevo_archivo = os.path.splitext(nuevo_nombre)[0]  # Obtener el nuevo nombre sin la extensión del archivo
+                                ruta_archivo_destino = destination_directory + nombre_nuevo_archivo + extension
+                            except:
+                                pass
+                            self.s3.copy_object(Bucket=self.bucket_name, CopySource={'Bucket': self.bucket_name, 'Key': archivo_origen['Key']}, Key=ruta_archivo_destino)
+                            self.s3.delete_object(Bucket=self.bucket_name, Key=archivo_origen['Key'])
+                            print(f'El archivo "{nombre_archivo}" se ha movido correctamente a "{ruta_archivo_destino}"')
+                            #Escribir_Consola(f'El archivo "{nombre_archivo}" se ha movido correctamente a "{ruta_archivo_destino}"' + '\n')
+                else:
+                    response = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=source_directory)
+                    archivos_origen = response['Contents'] if 'Contents' in response else []
+                    for archivo_origen in archivos_origen:
+                        print("entro aca al for")
+                        if 'Key' in archivo_origen and archivo_origen['Key'].split('/')[-1]:
+                            print("entro aca al KEY")
+                            nombre_archivo = archivo_origen['Key'].split('/')[-1]
+                            print("valor nombre archivo")
+                            print(nombre_archivo)
+                            print(" ruta inicial de archivo destion")
+                            ruta_archivo_destino = destination_directory + nombre_archivo
+                            print(ruta_archivo_destino)
+                            try:
+                                self.s3.head_object(Bucket=self.bucket_name, Key=ruta_archivo_destino)
+                                print(f'El archivo "{nombre_archivo}" ya existe en el directorio de destino.')
+                                print("Extension Archivo Original")
+                                extension = os.path.splitext(nombre_archivo)[1]
+                                print(extension)
+                                nuevo_nombre = input('Por favor, ingresa un nuevo nombre (sin extensión): ')
+                                print("Nuevo nombre")
+                                #nuevo_nombre = simpledialog.askstring("Nuevo Nombre", f"Ingrese el nuevo nombre para el archivo {nombre_archivo}:")
+                                print(nuevo_nombre)
+                                print("nombre_nuevo_archivo")
+                                nombre_nuevo_archivo = os.path.splitext(nuevo_nombre)[0]  # Obtener el nuevo nombre sin la extensión del archivo
+                                print(nombre_nuevo_archivo)
+                                print("ruta destion")
+                                ruta_archivo_destino = destination_directory + nombre_nuevo_archivo + extension
+                                print(ruta_archivo_destino)
+                                print("carpeta destion con nombre modificado")
+                            except:
+                                pass
+                            print("que llega aqui")
+                            print(ruta_archivo_destino)
+                            self.s3.copy_object(Bucket=self.bucket_name, CopySource={'Bucket': self.bucket_name, 'Key': archivo_origen['Key']}, Key=ruta_archivo_destino)
+                            self.s3.delete_object(Bucket=self.bucket_name, Key=archivo_origen['Key'])
+                            print(f'El archivo "{nombre_archivo}" se ha movido correctamente a "{ruta_archivo_destino}"')
+                            #Escribir_Consola(f'El archivo "{nombre_archivo}" se ha movido correctamente a "{ruta_archivo_destino}"' + '\n')
+                            print("si existe")
+            elif len(objetos_1) == 1:
+                print("Error", "No se puede mover. No hay archivos en el directorio origen.")
+                #Escribir_Consola(Fecha_Format + " " + f"ERROR: No se puede mover. No hay archivos en el directorio' + { str(bucket_name)}/{str(source_directory)} 'origen." + '\n')
+                print(" No Existen archivos en el directorio")
