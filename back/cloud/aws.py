@@ -409,6 +409,71 @@ def rename(self,valor1,valor2):
         
         print("carpeta renombrada")
 
+#Modify
+
+def modify(self,valor1,valor2):
+    
+    directorio = valor1
+
+    contenido = valor2
+    
+    print("Comando: modify")
+    print("Argumentos:")
+    print(f"  directorio: {directorio}")
+    print(f"  contenido: {contenido}")
+
+    # Separar el directorio y el nombre del archivo
+    directorio, nombre_archivo = directorio.rsplit('/', 1)
+
+    # Validar la existencia de la carpeta en S3
+
+    s3 = boto3.client('s3')
+
+    try:
+        
+        s3.head_object(Bucket= self.bucket_name, Key=directorio+'/')
+
+    except Exception as e:
+
+        print("Error: La carpeta especificada no existe en S3.")
+
+        #Escribir_Consola(Fecha_Format + " " + f" ERROR: El directorio {directorio} no existe." + '\n')
+
+        print("Modify", "Error: La carpeta especificada no existe en S3.")
+
+        
+        return
+
+    # Verificar si el archivo existe en S3
+    try:
+
+        s3.head_object(Bucket=self.bucket_name, Key=directorio+'/'+nombre_archivo)
+    
+    except Exception as e:
+    
+        print("Error: El archivo especificado no existe en S3.")
+
+        #Escribir_Consola(Fecha_Format + " " + f" ERROR: El archivo {directorio} +'/'+ {nombre_archivo} no existe en S3." + '\n')
+
+        print("Modify", "Error: La carpeta especificada no existe en S3.")
+
+    
+        return
+
+    # Subir el archivo actualizado a S3
+    try:
+        
+        s3.put_object(Body=contenido.encode('utf-8'), Bucket=self.bucket_name, Key=directorio+'/'+nombre_archivo)
+
+        #Escribir_Consola(Fecha_Format + " " + f" Archivo {directorio} +'/'+ {nombre_archivo} modificado correctamente en S3." + '\n')
+
+        print("Modify", "Archivo modificado correctamente en S3.")
+
+    except Exception as e:
+
+        #Escribir_Consola(Fecha_Format + " " + f" Error {directorio} +'/'+ {nombre_archivo} al modificar en S3." + '\n')
+
+        print("Modify", "Error al modificar el archivo en S3.")
 
     
 #Transfer
