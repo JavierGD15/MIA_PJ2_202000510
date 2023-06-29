@@ -246,22 +246,39 @@ def copy(self,valor1,valor2,valor3,valor4):
                             relative_path = os.path.relpath(local_file_path, local_folder_path)
                             s3_file_key = os.path.join(destination_directory, relative_path).replace("\\", "/")
                             self.s3.upload_file(local_file_path, self.bucket_name, s3_file_key)
+        
         elif valor3 == 'bucket' and valor4 == 'server':
+        
             s3_folder = valor1
             ruta_base = r'D:\USAC\Vacas Junio 2023\Archivos\Proyecto_1'
             folder_name = valor2
             local_folder_path = os.path.join(ruta_base, folder_name)
             objects = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=s3_folder)['Contents']
 
+            #for obj in objects:
+            #    s3_path = obj['Key']
+            #    local_path = os.path.join(local_folder_path, os.path.basename(s3_path))
+            #    self.s3.download_file(self.bucket_name, s3_path, local_path)
+
+
+       
+
+
             for obj in objects:
-                s3_file_key = obj['Key']
-                patron = r'^\w+\/\w+\.\w+$'
-                if re.match(patron, s3_file_key):
-                    s3_path = obj['Key']
-                    local_path = os.path.join(local_folder_path, os.path.basename(s3_path))
+                s3_path = obj['Key']
+                local_filename = os.path.basename(s3_path)
+                local_path = os.path.join(local_folder_path, local_filename)
+
+                # Validar si el archivo ya existe en el directorio local
+                if os.path.isfile(local_path):
+                    # Generar un nuevo nombre para el archivo agregando un sufijo
+                    name, extension = os.path.splitext(local_filename)
+                    new_local_filename = f"{name}_renamed{extension}"
+                    local_path = os.path.join(local_folder_path, new_local_filename)
+                    print(f"El archivo {local_filename} ya existe. Se renombrará como {new_local_filename}.")
+
                     self.s3.download_file(self.bucket_name, s3_path, local_path)
-                else:
-                    print("Es un directorio")
+
         elif valor3 == 'bucket' and valor4 == 'bucket':
 
             response = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=source_directory)
@@ -326,61 +343,40 @@ def cambiar_nombre_archivo(bucket , cliente_s3, ruta_archivo, nuevo_nombre):
         # Eliminar el archivo original utilizando la función delete_object de S3
         cliente_s3.delete_object(Bucket=bucket, Key=ruta_archivo)
 
+def check_folder_exists(bucket_name, folder_name):
+
+    s3 = boto3.resource('s3')
+
+    bucket = s3.Bucket(bucket_name)
+
+    objects = list(bucket.objects.filter(Prefix=folder_name))
+
+    return len(objects) > 0
+
 def rename(self,valor1,valor2):
-
-   
-    
     source_directory = valor1
-
     #extension = os.path.splitext(source_directory)[1]
-
     nuevo_nombre = valor2 #+ extension
-
     cliente_s3 = boto3.client('s3')
-
     if not verificar_existencia_carpeta(self.bucket_name,cliente_s3, source_directory):
-    
-        
         if verificar_existencia_archivo(self.bucket_name,cliente_s3, source_directory):
-
-            
             while verificar_existencia_archivo(self.bucket_name,cliente_s3, os.path.dirname(source_directory) + '/' + nuevo_nombre):
-
                 #Escribir_Consola(Fecha_Format + " " + f"ERROR : El archivo con nombre {nuevo_nombre} ya existe en {source_directory}." + '\n')
-
                 #messagebox.showerror("Error", "El archivo con ese nombre ya existe'. En el directorio destino")
-                
                 return
-
-            cambiar_nombre_archivo(bucket_name,cliente_s3, source_directory, nuevo_nombre)
-
+            cambiar_nombre_archivo(self.bucket_name,cliente_s3, source_directory, nuevo_nombre)
             #Escribir_Consola(Fecha_Format + " " + f" El nombre del archivo se ha cambiado exitosamente a  {nuevo_nombre} ." + '\n')
-
             #messagebox.showinfo("Rename", "El nombre del archivo se ha cambiado exitosamente.")
-            
         else:
-
-            
-
             print("No existe la carpeta y tampoco existe el archivo. Debe dar eror.")
-
             #Escribir_Consola(Fecha_Format + " " + f"ERROR : No existe la carpeta o archivo {source_directory}." + '\n')
-
             #messagebox.showerror("Error", "No existe la carpeta y tampoco existe el archivo. Debe dar error.")
-            
     else :
-
         print('La carpeta existe')
-
         current_folder_name = valor1 + '/'
-
-
         s3 = boto3.client('s3')
-
         new_folder_name = valor2 + '/'
-    
-        if check_folder_exists(bucket_name, new_folder_name):
-
+        if check_folder_exists(self.bucket_name, new_folder_name):
             print("El nuevo nombre de carpeta ya existe en el bucket.")
 
             return
@@ -388,7 +384,7 @@ def rename(self,valor1,valor2):
         # Obtener la lista de archivos dentro de la carpeta actual
         s3_resource = boto3.resource('s3')
 
-        bucket = s3_resource.Bucket(bucket_name)
+        bucket = s3_resource.Bucket(self.bucket_name)
         
         objects = list(bucket.objects.filter(Prefix=current_folder_name))
         
@@ -399,26 +395,25 @@ def rename(self,valor1,valor2):
             
             s3.copy_object(
             
-                Bucket=bucket_name,
+                Bucket=self.bucket_name,
             
-                CopySource={'Bucket': bucket_name, 'Key': obj.key},
+                CopySource={'Bucket': self.bucket_name, 'Key': obj.key},
             
                 Key=new_key
             
             )
             
-            s3.delete_object(Bucket=bucket_name, Key=obj.key)
+            s3.delete_object(Bucket=self.bucket_name, Key=obj.key)
         
         print("Carpeta renombrada con éxito.")
         
-        messagebox.showinfo("carpeta renombrada")
+        print("carpeta renombrada")
 
 
     
 #Transfer
 
-def transfer(self,valor1,valor2,valor3,valor4)
-
+def transfer(self,valor1,valor2,valor3,valor4):
 
     patron = r'^[\w\s]+\/[\w\s]+\.\w+$'
     # valor1 = 'carpeta prueba transfer/05122021.txt' EJEMPLO ESTRUCTURA
@@ -428,10 +423,8 @@ def transfer(self,valor1,valor2,valor3,valor4)
     if re.match(patron, valor1):
 
         if valor3 == 'bucket' and valor4 == 'bucket':
-
             source_directory = valor1
             destination_directory = valor2 + '/'
-
             exists_file = True
             try:
                 self.s3.head_object(Bucket=self.bucket_name, Key=valor1)
@@ -439,7 +432,7 @@ def transfer(self,valor1,valor2,valor3,valor4)
                 if e.response['Error']['Code'] == '404':
                     exists_file = False
             if exists_file :
-                response_a2 = s3.list_objects_v2(Bucket=self.bucket_name, Prefix=destination_directory)
+                response_a2 = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=destination_directory)
                 objetos_a2 = response_a2.get('Contents', [])
                 if objetos_a2:
                     nombre_archivo = source_directory.split('/')[-1]
@@ -474,7 +467,7 @@ def transfer(self,valor1,valor2,valor3,valor4)
                     print(f"La ruta de destino '{self.bucket_name}/{destination_directory}' no existe.")
                     #Escribir_Consola(Fecha_Format + " " + f"La ruta de destino '{str(bucket_name)}/{str(destination_directory)}' no existe." + '\n')
                     print("Tranfer",  "La ruta de destino no existe.")
-                    s3.put_object(Bucket=self.bucket_name , Key=destination_directory)
+                    self.s3.put_object(Bucket=self.bucket_name , Key=destination_directory)
                     print("Tranfer",  " Se creo la ruta de destino.")
                     #Escribir_Consola(Fecha_Format + " " + f"La ruta de destino '{str(bucket_name)}/{str(destination_directory)}' fue creada." + '\n')
                     nombre_archivo = source_directory.split('/')[-1]
@@ -494,5 +487,24 @@ def transfer(self,valor1,valor2,valor3,valor4)
             else:
 
                 print("Transfer", "El archivo que desea transferir no existe en S3.")
+        elif valor3 == 'bucket' and valor4 == 'server':
+            s3_folder = valor1
+            ruta_base = r'D:\USAC\Vacas Junio 2023\Archivos\Proyecto_1'
+            folder_name = valor2
+            local_folder_path = os.path.join(ruta_base, folder_name)
+            
+            objects = self.s3.list_objects_v2(Bucket=self.bucket_name, Prefix=s3_folder)['Contents']
 
+            for obj in objects:
+                s3_file_key = obj['Key']
+                patron = r'^\w+\/\w+\.\w+$'
+                if re.match(patron, s3_file_key):
+                    s3_path = obj['Key']
+                    local_path = os.path.join(local_folder_path, os.path.basename(s3_path))
+                    self.s3.download_file(self.bucket_name, s3_path, local_path)
+                    self.s3.delete_object(Bucket=self.bucket_name, Key=source_directory)
+                else:
+                    print("Es un directorio")
 
+        elif valor3 == 'server' and valor4 == 'bucket':
+                print("lo que viene")
