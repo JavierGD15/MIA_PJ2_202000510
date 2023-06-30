@@ -1,11 +1,8 @@
-import tkinter as tk
+
 import sys
 sys.path.append(r'Archivos 2/back/accion')
 from accion.accion import create, delete, copy, transfer, rename, modify,backup, recovery, delete_all, opens
-from tkinter import ttk
-from tkinter import scrolledtext
 from Pantallas.Analizador import parse_command
-from tkinter import scrolledtext, PhotoImage
 from Pantallas.encriptado import desencriptar
 
 class Application:
