@@ -464,7 +464,6 @@ class AWS:
 
         patron = r'^\w+\/\w+\.\w+$'
         _initPath = '/Archivos'
-        name = name.replace('"', '')
         home = Path.home()
         home = str(home) + _initPath + '/'
         home = home.replace("\\", "/")
@@ -628,17 +627,17 @@ class AWS:
 
     def transfer(self,valor1,valor2,valor3,valor4):
         _initPath = '/Archivos'
-        name = name.replace('"', '')
         home = Path.home()
         home = str(home) + _initPath + '/'
         home = home.replace("\\", "/")
         patron = r'^[\w\s]+\/[\w\s]+\.\w+$'
+        source_directory = valor1
         # valor1 = 'carpeta prueba transfer/05122021.txt' EJEMPLO ESTRUCTURA
         # valor2 = 'carpeta prueba transfer 4' EJEMPLO ESTRUCTURAy
         if re.match(patron, valor1):
 
             if valor3 == 'bucket' and valor4 == 'bucket':
-                source_directory = valor1
+                
                 destination_directory = valor2 + '/'
                 exists_file = True
                 try:
